@@ -1,5 +1,5 @@
-import { MCQResponse } from "../lib/schema";
-import { ChunkService } from "./chunks.service";
+import { MCQResponse } from "../../lib/schema";
+import { ChunkService } from "../repo/chunks.service";
 import {
   ChunkData,
   createBatches,

@@ -1,11 +1,12 @@
-import prisma from "../lib/prisma";
-import { DocumentType } from "../generated/prisma";
+import prisma from "../../lib/prisma";
+import { DocumentType } from "../../generated/prisma";
 
 type CreateDocumentInput = {
   title: string;
   source?: string;
   type: DocumentType;
   contentHash: string;
+  userId: string;
 };
 
 export const DocumentService = {
@@ -16,14 +17,12 @@ export const DocumentService = {
         source: doc.source,
         type: doc.type,
         contentHash: doc.contentHash,
+        userId: doc.userId,
       },
     });
   },
 
-  async updateChunksCount(
-    documentId: string,
-    chunkCount: number
-  ) {
+  async updateChunksCount(documentId: string, chunkCount: number) {
     return prisma.document.update({
       where: { id: documentId },
       data: { chunkCount },
@@ -36,8 +35,9 @@ export const DocumentService = {
     });
   },
 
-  async getDocuments() {
+  async getDocuments(userId: string) {
     return prisma.document.findMany({
+      where: { userId },
       orderBy: {
         createdAt: "desc",
       },
