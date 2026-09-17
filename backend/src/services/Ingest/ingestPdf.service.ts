@@ -1,16 +1,16 @@
-import { HashService } from "./hash.service";
-import { DocumentService } from "./document.Service";
-import { chunkText } from "../docs/textToChunks";
-import { addChunks } from "./vectorStore.service";
-import { extractPdfText } from "../docs/pdfParser";
-import { ChunkService } from "./chunks.service";
-import { DocumentType } from "../generated/prisma";
+import { HashService } from "../repo/hash.service";
+import { DocumentService } from "../repo/document.Service";
+import { chunkText } from "../../docs/textToChunks";
+import { addChunks } from "../vectorStore.service";
+import { extractPdfText } from "../../docs/pdfParser";
+import { ChunkService } from "../repo/chunks.service";
+import { DocumentType } from "../../generated/prisma";
 
-export async function ingestPdf(buffer: Uint8Array, fileName: string) {
+export async function ingestPdf(buffer: Uint8Array, fileName: string, userId: string) {
   console.log("Starting PDF ingestion...");
 
   // 1. Extract text
-  const text = await extractPdfText(buffer);
+  const text = await extractPdfText(Buffer.from(buffer));
 
   console.log("PDF extracted");
   console.log("Text length:", text.length);
@@ -41,6 +41,7 @@ export async function ingestPdf(buffer: Uint8Array, fileName: string) {
     source: fileName,
     type: DocumentType.PDF,
     contentHash: hash,
+    userId,
   });
 
   console.log("Document created:", document.id);

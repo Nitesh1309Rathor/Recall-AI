@@ -28,6 +28,7 @@ export const api = {
   async getDocuments(): Promise<Document[]> {
     const response = await fetch(`${API_URL}/api/documents`, {
       method: "GET",
+      credentials: "include",
     });
 
     return handleResponse<Document[]>(response);
@@ -40,6 +41,7 @@ export const api = {
 
     const response = await fetch(`${API_URL}/api/ingest/pdf`, {
       method: "POST",
+      credentials: "include",
       body: formData,
     });
 
@@ -49,6 +51,7 @@ export const api = {
   async generateMCQs(documentId: string, count: number): Promise<MCQResponse> {
     const response = await fetch(`${API_URL}/api/ask/mcqs`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -59,5 +62,68 @@ export const api = {
     });
 
     return handleResponse<MCQResponse>(response);
+  },
+
+  async login(email: string, password: string) {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    return handleResponse<{
+      message: string;
+      user: {
+        id: string;
+        email: string;
+      };
+    }>(response);
+  },
+
+  async signup(email: string, password: string) {
+    const response = await fetch(`${API_URL}/api/auth/signup`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    return handleResponse<{
+      message: string;
+      user: {
+        id: string;
+        email: string;
+      };
+    }>(response);
+  },
+
+  async me(): Promise<{
+    user: {
+      id: string;
+      email: string;
+    };
+  }> {
+    const response = await fetch(`${API_URL}/api/auth/me`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    return handleResponse<{
+      user: {
+        id: string;
+        email: string;
+      };
+    }>(response);
   },
 };

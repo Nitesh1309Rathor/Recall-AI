@@ -1,5 +1,5 @@
-import { getChatModel } from "../docs/LLM";
-import { MCQResponse, MCQSchema } from "../lib/schema";
+import { getChatModel } from "../../docs/LLM";
+import { MCQResponse, MCQSchema } from "../../lib/schema";
 
 export type ChunkData = {
   chunkIndex: number;

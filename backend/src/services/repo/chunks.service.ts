@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma";
+import prisma from "../../lib/prisma";
 
 export const ChunkService = {
   async createChunk(documentId: string, chunks: string[]) {

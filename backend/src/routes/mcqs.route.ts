@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { generateMCQs } from "../services/mcq.service";
+import { generateMCQs } from "../services/mcqs/mcq.service";
 
 const mcqRouter = Router();
 
