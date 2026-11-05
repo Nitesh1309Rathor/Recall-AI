@@ -11,15 +11,29 @@ import { DocumentCard } from "./DocumentCard";
 interface DocumentListProps {
   selectedDocumentId: string | null;
   onSelect: (document: Document) => void;
+  onDeleted?: (document: Document) => void;
   refreshKey: number;
 }
 
-export function DocumentList({ selectedDocumentId, onSelect, refreshKey }: DocumentListProps) {
+export function DocumentList({ selectedDocumentId, onSelect, onDeleted, refreshKey }: DocumentListProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
 
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState<string | null>(null);
+
+  async function handleDelete(document: Document) {
+    try {
+      setError(null);
+
+      await api.deleteDocument(document.id);
+
+      setDocuments((current) => current.filter((item) => item.id !== document.id));
+      onDeleted?.(document);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to delete document.");
+    }
+  }
 
   useEffect(() => {
     async function loadDocuments() {
@@ -55,13 +69,13 @@ export function DocumentList({ selectedDocumentId, onSelect, refreshKey }: Docum
   }
 
   if (documents.length === 0) {
-    return <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No documents yet. Upload your first PDF.</p>;
+    return <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No documents yet. Add your first PDF or web URL.</p>;
   }
 
   return (
     <div className="space-y-2">
       {documents.map((document) => (
-        <DocumentCard key={document.id} document={document} selected={document.id === selectedDocumentId} onSelect={onSelect} />
+        <DocumentCard key={document.id} document={document} selected={document.id === selectedDocumentId} onSelect={onSelect} onDelete={handleDelete} />
       ))}
       <p className="pt-3 text-center text-sm text-muted-foreground">No more documents.</p>
     </div>

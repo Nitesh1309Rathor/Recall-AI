@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ingestPdf } from "../services/Ingest/ingestPdf.service";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
+import { ingestUrl } from "../services/Ingest/ingestURL.service";
 
 export const IngestController = {
   async pdf(req: AuthenticatedRequest, res: Response) {
@@ -25,6 +26,28 @@ export const IngestController = {
 
       return res.status(500).json({
         error: error instanceof Error ? error.message : "Failed to ingest PDF",
+      });
+    }
+  },
+
+  async url(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { url } = req.body;
+
+      if (!url) {
+        return res.status(400).json({
+          message: "URL is required",
+        });
+      }
+
+      const result = await ingestUrl(url, req.user!.id);
+
+      return res.json(result);
+    } catch (error) {
+      console.error("URL ingestion failed:", error);
+
+      return res.status(500).json({
+        error: error instanceof Error ? error.message : "Failed to ingest document",
       });
     }
   },

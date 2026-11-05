@@ -87,4 +87,30 @@ export const AuthController = {
       user: req.user,
     });
   },
+
+  async logout(req: Request, res: Response) {
+    try {
+      const sessionId = req.cookies.sessionId;
+
+      if (sessionId) {
+        await SessionService.delete(sessionId);
+      }
+
+      res.clearCookie("sessionId", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV == "production",
+        sameSite: "lax",
+      });
+
+      return res.status(200).json({
+        message: "Logout successful",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+
+      return res.status(500).json({
+        message: "Internal server error",
+      });
+    }
+  },
 };
