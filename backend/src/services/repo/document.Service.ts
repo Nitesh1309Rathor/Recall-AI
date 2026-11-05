@@ -49,4 +49,13 @@ export const DocumentService = {
       where: { id },
     });
   },
+
+  async deleteUserDocument(id: string, userId: string) {
+    return prisma.document.deleteMany({
+      where: {
+        id,
+        userId,
+      },
+    });
+  },
 };

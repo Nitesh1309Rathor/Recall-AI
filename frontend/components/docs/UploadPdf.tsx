@@ -6,12 +6,14 @@ import { UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import type { Document } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface UploadPdfProps {
   onUploaded: (document: Document) => void;
+  showTitle?: boolean;
 }
 
-export function UploadPdf({ onUploaded }: UploadPdfProps) {
+export function UploadPdf({ onUploaded, showTitle = true }: UploadPdfProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [uploading, setUploading] = useState(false);
@@ -58,9 +60,9 @@ export function UploadPdf({ onUploaded }: UploadPdfProps) {
         </div>
 
         <div className="mt-3 sm:ml-6 sm:mt-0">
-          <h3 className="text-lg font-extrabold">{uploading ? "Uploading New Document..." : "Upload New Document"}</h3>
+          {showTitle && <h3 className="text-lg font-extrabold">{uploading ? "Uploading New Document..." : "Upload New Document"}</h3>}
 
-          <p className="mt-2 text-sm text-muted-foreground">Drag & drop your PDF here, or</p>
+          <p className={cn("text-sm text-muted-foreground", showTitle && "mt-2")}>Drag & drop your PDF here, or</p>
 
           <Button
             type="button"

@@ -48,6 +48,34 @@ export const api = {
     return handleResponse<UploadDocumentResponse>(response);
   },
 
+  async ingestUrl(url: string): Promise<UploadDocumentResponse> {
+    const response = await fetch(`${API_URL}/api/ingest/url`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url,
+      }),
+    });
+
+    return handleResponse<UploadDocumentResponse>(response);
+  },
+
+  async deleteDocument(documentId: string): Promise<{
+    message: string;
+  }> {
+    const response = await fetch(`${API_URL}/api/documents/${documentId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    return handleResponse<{
+      message: string;
+    }>(response);
+  },
+
   async generateMCQs(documentId: string, count: number): Promise<MCQResponse> {
     const response = await fetch(`${API_URL}/api/ask/mcqs`, {
       method: "POST",
@@ -124,6 +152,19 @@ export const api = {
         id: string;
         email: string;
       };
+    }>(response);
+  },
+
+  async logout(): Promise<{
+    message: string;
+  }> {
+    const response = await fetch(`${API_URL}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    return handleResponse<{
+      message: string;
     }>(response);
   },
 };

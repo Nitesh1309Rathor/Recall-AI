@@ -7,4 +7,6 @@ const ingestRouter = Router();
 
 ingestRouter.post("/pdf", requireAuth, upload.single("file"), IngestController.pdf);
 
+ingestRouter.post("/url", requireAuth, IngestController.url);
+
 export default ingestRouter;
