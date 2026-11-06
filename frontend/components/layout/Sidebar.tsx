@@ -1,16 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { BookOpen, ClipboardList, Clock3, FileQuestion, FileText, Layers3, MessageSquareText } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { ClipboardCheck, ClipboardList, FileQuestion, FileText, Layers3, LogOut, MessageSquareText, Home, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 
 const mainNav = [
-  { href: "/dashboard", label: "Generate MCQs", icon: ClipboardList },
+  { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/dashboard/documents", label: "Documents", icon: FileText },
-  { href: "/dashboard/history", label: "History", icon: Clock3 },
+  { href: "/dashboard/chat", label: "Chat", icon: MessageSquareText },
+  { href: "/dashboard/summary", label: "Summary", icon: FileQuestion },
+  { href: "/dashboard/mcqs", label: "MCQs", icon: ClipboardList },
+  { href: "/dashboard/flashcards", label: "Flashcards", icon: Layers3 },
+  { href: "/dashboard/practice-test", label: "Practice Test", icon: ClipboardCheck },
 ];
 
 const studyTools = [
@@ -25,73 +31,65 @@ function isActive(pathname: string, href: string) {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [collapsed, setCollapsed] = useState(() => typeof window !== "undefined" && window.localStorage.getItem("recall-sidebar-collapsed") === "true");
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+
+  function toggleSidebar() {
+    setCollapsed((current) => {
+      const next = !current;
+      window.localStorage.setItem("recall-sidebar-collapsed", String(next));
+      return next;
+    });
+  }
+
+  async function handleLogout() {
+    if (!window.confirm("Are you sure you want to log out?")) return;
+    try {
+      setLogoutError(null);
+      setLoggingOut(true);
+      await api.logout();
+      router.replace("/");
+      router.refresh();
+    } catch (error) {
+      setLogoutError(error instanceof Error ? error.message : "Unable to log out.");
+      setLoggingOut(false);
+    }
+  }
 
   return (
-    <aside className="hidden h-dvh w-[296px] shrink-0 border-r border-border bg-card px-5 py-6 shadow-[18px_0_45px_rgba(30,41,59,0.06)] lg:flex lg:flex-col">
-      <Link href="/" className="flex items-center gap-4 rounded-lg px-2 py-2 transition hover:bg-muted" aria-label="Go to Recall AI landing page">
-        <span className="flex size-11 items-center justify-center rounded-md border border-primary/20 bg-card text-primary shadow-sm">
-          <BookOpen className="size-7" strokeWidth={2.3} />
-        </span>
-        <span>
-          <span className="block text-2xl font-extrabold leading-none tracking-wide">
-            RECALL <span className="text-primary">AI</span>
-          </span>
-          <span className="mt-2 block text-sm text-muted-foreground">Level up your learning.</span>
-        </span>
-      </Link>
+    <aside className={cn("hidden h-[calc(100dvh-86px)] shrink-0 border-r border-sidebar-border bg-sidebar py-6 transition-[width,padding] duration-200 lg:flex lg:flex-col", collapsed ? "w-[84px] px-3" : "w-[278px] px-5")}>
+      <div className={cn("mb-5 flex items-center", collapsed ? "justify-center" : "justify-end")}>
+        <button type="button" onClick={toggleSidebar} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"} className="flex size-9 items-center justify-center rounded-lg border border-sidebar-border text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+          {collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+        </button>
+      </div>
 
-      <nav className="mt-10 space-y-8">
+      <nav className="space-y-8">
         <div>
-          <p className="px-2 text-xs font-black uppercase tracking-widest text-muted-foreground">Main</p>
+          {!collapsed && <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Workspace</p>}
           <div className="mt-3 space-y-1.5">
             {mainNav.map((item) => {
               const Icon = item.icon;
               const active = isActive(pathname, item.href);
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex h-11 items-center gap-3 rounded-lg px-4 text-sm font-bold transition",
-                    active ? "border border-primary/20 bg-primary/10 text-primary shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                  )}
-                >
-                  <Icon className="size-5" />
-                  {item.label}
-                </Link>
-              );
+              return <Link key={item.href} href={item.href} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined} className={cn("flex h-12 items-center rounded-lg text-[16px] font-semibold transition", collapsed ? "justify-center px-0" : "gap-3 px-4", active ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}><Icon className="size-5 shrink-0" />{!collapsed && item.label}</Link>;
             })}
           </div>
         </div>
 
         <div>
-          <p className="px-2 text-xs font-black uppercase tracking-widest text-muted-foreground">Study Tools</p>
+          {!collapsed && <p className="px-2 text-xs font-black uppercase tracking-widest text-muted-foreground">Study Tools</p>}
           <div className="mt-3 space-y-1.5">
-            {studyTools.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  disabled
-                  className="flex h-11 w-full items-center justify-between rounded-lg px-4 text-left text-sm font-bold text-muted-foreground/70"
-                  title="Coming soon"
-                >
-                  <span className="flex items-center gap-3">
-                    <Icon className="size-5" />
-                    {item.label}
-                  </span>
-                  <Badge variant="outline" className="h-5 rounded-full px-2 text-[10px]">
-                    Soon
-                  </Badge>
-                </button>
-              );
-            })}
+            {studyTools.map((item) => { const Icon = item.icon; return <button key={item.label} type="button" disabled title={collapsed ? `${item.label} (Coming soon)` : "Coming soon"} aria-label={collapsed ? `${item.label} (Coming soon)` : undefined} className={cn("flex h-11 w-full items-center rounded-lg text-left text-sm font-bold text-muted-foreground/70", collapsed ? "justify-center px-0" : "justify-between px-4")}><span className={cn("flex items-center", !collapsed && "gap-3")}><Icon className="size-5 shrink-0" />{!collapsed && item.label}</span>{!collapsed && <Badge variant="outline" className="h-5 rounded-full px-2 text-[10px]">Soon</Badge>}</button>; })}
           </div>
         </div>
       </nav>
+
+      <div className="mt-auto border-t border-sidebar-border pt-4">
+        {logoutError && !collapsed && <p className="mb-2 px-2 text-xs text-destructive" role="alert">{logoutError}</p>}
+        <button type="button" onClick={handleLogout} disabled={loggingOut} title={loggingOut ? "Logging out..." : "Log out"} aria-label={loggingOut ? "Logging out" : "Log out"} className={cn("flex h-11 w-full items-center rounded-lg text-sm font-semibold text-sidebar-foreground transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground disabled:opacity-60", collapsed ? "justify-center px-0" : "gap-3 px-3")}><LogOut className="size-5 shrink-0" />{!collapsed && (loggingOut ? "Logging out..." : "Log out")}</button>
+      </div>
     </aside>
   );
 }
