@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ProfileMenu } from "@/components/layout/ProfileMenu";
 
 const navLinks = [
   { href: "#features", label: "Features" },
@@ -11,16 +11,16 @@ const navLinks = [
   { href: "#why-recall", label: "Why Recall" },
 ];
 
-export function LandingNavbar() {
+export function LandingNavbar({ authenticated = false, user }: { authenticated?: boolean; user?: { id: string; email: string } | null }) {
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/88 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="Recall AI home">
-          <span className="flex size-10 items-center justify-center rounded-lg border border-primary/15 bg-card text-primary shadow-sm">
-            <BookOpen className="size-5" strokeWidth={2.4} />
+      <div className="mx-auto flex h-[74px] max-w-[1280px] items-center justify-between px-5 sm:px-8 lg:px-10">
+        <Link href={authenticated ? "/home" : "/"} className="flex items-center gap-3" aria-label="Recall AI home">
+          <span className="flex size-10 items-center justify-center text-primary">
+            <BookOpen className="size-8" strokeWidth={2.1} />
           </span>
-          <span className="text-lg font-extrabold tracking-wide">
-            RECALL <span className="text-primary">AI</span>
+          <span className="text-[21px] font-bold tracking-tight">
+            Recall AI
           </span>
         </Link>
 
@@ -33,14 +33,7 @@ export function LandingNavbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Link href="/login" className={cn(buttonVariants({ variant: "ghost" }), "hidden sm:inline-flex")}>
-            Login
-          </Link>
-          <Link href="/signup" className={cn(buttonVariants({ size: "lg" }), "h-10 px-4")}>
-            Get Started
-            <ArrowRight className="size-4" />
-          </Link>
+          {authenticated ? <><Link href="/dashboard" className={cn(buttonVariants({ size: "lg" }), "h-10 rounded-lg bg-[#1769e8] px-5")}>Dashboard</Link><ProfileMenu user={user} /></> : <><Link href="/login" className={cn(buttonVariants({ variant: "outline" }), "hidden h-10 rounded-lg border-[#c7d5ea] bg-white px-5 sm:inline-flex dark:bg-[#111b2d]")}>Log in</Link><Link href="/signup" className={cn(buttonVariants({ size: "lg" }), "h-10 rounded-lg bg-[#1769e8] px-5")}>Sign up</Link></>}
         </div>
       </div>
     </header>

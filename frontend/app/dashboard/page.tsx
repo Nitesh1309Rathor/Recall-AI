@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight, BookOpen, FileText, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 import { AddDocumentPanel } from "@/components/docs/AddDocumentPanel";
 import { DocumentList } from "@/components/docs/DocumentList";
@@ -60,6 +62,13 @@ export default function Home() {
 
   return (
     <>
+      <section className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+        <div><p className="text-sm font-semibold text-primary">Thursday, November 5</p><h1 className="mt-2 text-4xl font-bold tracking-tight">Welcome back 👋</h1><p className="mt-3 text-slate-500">Pick up where you left off and keep your learning moving.</p></div>
+        <Link href="/dashboard/documents" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-semibold text-white shadow-[0_8px_18px_rgba(23,105,232,0.22)]">Add document <ArrowRight className="size-4"/></Link>
+      </section>
+      <section className="mb-8 grid gap-4 sm:grid-cols-3">
+        {[{label:"Documents", value:"12", icon:FileText},{label:"Quizzes completed", value:"8", icon:Sparkles},{label:"Study streak", value:"4 days", icon:BookOpen}].map(({label,value,icon:Icon})=><div key={label} className="recall-panel flex items-center gap-4 p-5"><span className="flex size-11 items-center justify-center rounded-xl bg-[#e8f1ff] text-primary"><Icon className="size-5"/></span><div><p className="text-2xl font-bold">{value}</p><p className="mt-1 text-sm text-slate-500">{label}</p></div></div>)}
+      </section>
       {questions.length ? (
         <McqResults key={questions.map((question) => question.question).join("|")} questions={questions} onClear={() => setQuestions([])} quizMode />
       ) : (

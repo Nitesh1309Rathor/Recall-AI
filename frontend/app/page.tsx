@@ -1,25 +1,14 @@
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { FinalCTA } from "@/components/landing/FinalCTA";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { HowItWorks } from "@/components/landing/HowItWorks";
-import { LandingFooter } from "@/components/landing/LandingFooter";
-import { LandingNavbar } from "@/components/landing/LandingNavbar";
-import { ProductPreview } from "@/components/landing/ProductPreview";
-import { ProgressSection } from "@/components/landing/ProgressSection";
-import { WhyRecall } from "@/components/landing/WhyRecall";
+"use client";
 
-export default function LandingPage() {
-  return (
-    <main className="min-h-dvh overflow-hidden bg-background text-foreground">
-      <LandingNavbar />
-      <HeroSection />
-      <ProductPreview />
-      <FeaturesSection />
-      <HowItWorks />
-      <WhyRecall />
-      <ProgressSection />
-      <FinalCTA />
-      <LandingFooter />
-    </main>
-  );
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
+import { LandingPage } from "@/components/landing/LandingPage";
+
+export default function PublicLandingPage() {
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+  useEffect(() => { api.me().then(() => router.replace("/dashboard")).catch(() => setChecking(false)); }, [router]);
+  if (checking) return <main className="flex min-h-dvh items-center justify-center bg-background text-sm text-muted-foreground">Loading Recall AI...</main>;
+  return <LandingPage />;
 }

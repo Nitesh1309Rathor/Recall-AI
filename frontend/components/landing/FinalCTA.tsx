@@ -1,22 +1,3 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
-export function FinalCTA() {
-  return (
-    <section className="border-y border-border/60 bg-muted/30">
-      <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 md:py-24">
-        <h2 className="text-3xl font-black tracking-tight md:text-5xl">Ready to test what you actually remember?</h2>
-        <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-          Turn what you read into what you can recall, starting with your next PDF.
-        </p>
-        <Link href="/dashboard" className={cn(buttonVariants({ size: "lg" }), "mt-8 h-12 px-6 text-base")}>
-          Start Studying
-          <ArrowRight className="size-4" />
-        </Link>
-      </div>
-    </section>
-  );
-}
+export function FinalCTA(){return <section><div className="mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-5 rounded-2xl bg-[#f1f6ff] px-7 py-6 sm:flex-row sm:items-center dark:bg-[#111b2d]"><div><h2 className="text-2xl font-bold">Start studying smarter today</h2><p className="mt-1 text-slate-600 dark:text-slate-300">Create summaries, MCQs and flashcards from your own notes.</p></div><Link href="/dashboard" className="inline-flex h-12 items-center gap-3 rounded-lg bg-[#1769e8] px-7 font-semibold text-white">Get Started <ArrowRight className="size-5"/></Link></div></section>}
