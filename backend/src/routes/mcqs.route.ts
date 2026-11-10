@@ -5,7 +5,7 @@ const mcqRouter = Router();
 
 mcqRouter.post("/mcqs", async (req: Request, res: Response) => {
   try {
-    const { documentId, count } = req.body;
+    const { documentId, count, difficulty } = req.body;
 
     if (!documentId) {
       return res.status(400).json({
@@ -13,15 +13,23 @@ mcqRouter.post("/mcqs", async (req: Request, res: Response) => {
       });
     }
 
-    const requestedCount = Number(count) || 10;
+    const allowedDifficulties = ["Easy", "Medium", "Hard"] as const;
 
-    if (requestedCount < 1 || requestedCount > 50) {
+    if (!allowedDifficulties.includes(difficulty)) {
+      return res.status(400).json({
+        message: "Difficulty must be Easy, Medium, or Hard",
+      });
+    }
+
+    const requestedCount = Number(count);
+
+    if (!Number.isInteger(requestedCount) || requestedCount < 1 || requestedCount > 50) {
       return res.status(400).json({
         message: "Requested Questions count should be between 1 and 50",
       });
     }
 
-    const result = await generateMCQs(documentId, requestedCount);
+    const result = await generateMCQs(documentId, requestedCount, difficulty);
 
     return res.status(200).json({
       documentId,

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { DocumentService } from "../services/repo/document.Service";
+import { DocumentService } from "../services/docs/document.Service";
 import { AuthenticatedRequest, requireAuth } from "../middlewares/auth.middleware";
 
 const documentRouter = Router();

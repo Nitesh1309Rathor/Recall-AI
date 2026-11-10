@@ -14,6 +14,11 @@ enum DocumentType {
   TEXT
 }
 
+enum MCQTestStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
 model User {
   id           String     @id @default(uuid())
   email        String     @unique
@@ -23,6 +28,8 @@ model User {
 
   documents    Document[]
   sessions     Session[]
+  flashcardSets FlashcardSet[]
+  mcqTests     MCQTest[]
 }
 
 model Session {
@@ -50,6 +57,8 @@ model Document {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   chunks      Chunk[]
+  flashcardSets FlashcardSet[]
+  mcqTests      MCQTest[]
 }
 
 model Chunk {
@@ -61,4 +70,74 @@ model Chunk {
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
+}
+
+model FlashcardSet {
+  id         String      @id @default(uuid())
+  title      String
+  userId     String
+  documentId String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document   Document    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  cards      Flashcard[]
+
+  @@index([userId])
+  @@index([documentId])
+}
+
+model Flashcard {
+  id        String       @id @default(uuid())
+  front     String
+  back      String
+  order     Int
+  setId     String
+  createdAt DateTime     @default(now())
+
+  set       FlashcardSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+
+  @@index([setId])
+  @@unique([setId, order])
+}
+
+model MCQTest {
+  id                  String        @id @default(uuid())
+  userId              String
+  documentId          String
+  totalQuestions      Int
+  correctAnswers      Int           @default(0)
+  wrongAnswers        Int           @default(0)
+  unansweredQuestions Int           @default(0)
+  status              MCQTestStatus @default(IN_PROGRESS)
+  score               Float         @default(0)
+  createdAt           DateTime      @default(now())
+  completedAt         DateTime?
+
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document            Document      @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  questions           MCQTestQuestion[]
+
+  @@index([userId])
+  @@index([documentId])
+  @@index([userId, status])
+}
+
+model MCQTestQuestion {
+  id             String   @id @default(uuid())
+  testId         String
+  question       String
+  options        Json
+  correctAnswer  String
+  explanation    String
+  order          Int
+  selectedAnswer String?
+  isCorrect      Boolean?
+  createdAt      DateTime @default(now())
+
+  test           MCQTest  @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([testId])
+  @@unique([testId, order])
 }

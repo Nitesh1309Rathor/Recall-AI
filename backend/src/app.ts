@@ -6,6 +6,8 @@ import ingestRouter from "./routes/ingest.route";
 import mcqRouter from "./routes/mcqs.route";
 import documentRouter from "./routes/document.route";
 import authRouter from "./routes/auth.route";
+import flashcardRouter from "./routes/flashcard.route";
+import mcqTestsRouter from "./routes/mcqTests.route";
 
 const app = express();
 
@@ -35,5 +37,7 @@ app.use("/api/ingest", ingestRouter);
 app.use("/api/ask", mcqRouter);
 app.use("/api/documents", documentRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/flashcards", flashcardRouter);
+app.use("/api/mcqs", mcqTestsRouter);
 
 export default app;
