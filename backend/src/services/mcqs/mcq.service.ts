@@ -1,5 +1,5 @@
 import { MCQResponse } from "../../lib/schema";
-import { ChunkService } from "../repo/chunks.service";
+import { ChunkService } from "../docs/chunks.service";
 import {
   ChunkData,
   createBatches,
@@ -10,7 +10,13 @@ import {
   removeDuplicates,
 } from "./mcqGeneration.service";
 
-export async function generateMCQs(documentId: string, requestedCount: number): Promise<MCQResponse> {
+export type Difficulty = "Easy" | "Medium" | "Hard";
+
+export async function generateMCQs(documentId: string, requestedCount: number, difficulty: Difficulty): Promise<MCQResponse> {
+  // Give every generation request a fresh variation key so repeated requests
+  // for the same document do not receive the same prompt context.
+  const variationKey = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
   // ----------------------------------------
   // 1. Get ALL chunks
   // ----------------------------------------
@@ -48,7 +54,7 @@ export async function generateMCQs(documentId: string, requestedCount: number): 
   if (totalChars <= MAX_SINGLE_CALL_CHARS) {
     console.log("Document fits in single-call limit");
 
-    return generateSingleCall(chunkData, requestedCount);
+    return generateSingleCall(chunkData, requestedCount, difficulty, variationKey);
   }
 
   // ----------------------------------------
@@ -65,7 +71,7 @@ export async function generateMCQs(documentId: string, requestedCount: number): 
   // 6. Generate batch-wise
   // ----------------------------------------
 
-  const result = await generateBatchMCQs(batches, requestedCount);
+  const result = await generateBatchMCQs(batches, requestedCount, difficulty, variationKey);
 
   // ----------------------------------------
   // 7. Remove duplicates

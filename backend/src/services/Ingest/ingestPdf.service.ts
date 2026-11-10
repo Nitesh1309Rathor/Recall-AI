@@ -1,9 +1,9 @@
-import { HashService } from "../repo/hash.service";
-import { DocumentService } from "../repo/document.Service";
+import { HashService } from "../docs/hash.service";
+import { DocumentService } from "../docs/document.Service";
 import { chunkText } from "../../docs/textToChunks";
 import { addChunks } from "../vectorStore.service";
 import { extractPdfText } from "../../docs/pdfParser";
-import { ChunkService } from "../repo/chunks.service";
+import { ChunkService } from "../docs/chunks.service";
 import { DocumentType } from "../../generated/prisma";
 
 export async function ingestPdf(buffer: Uint8Array, fileName: string, userId: string) {

@@ -1,6 +1,8 @@
 import { getChatModel } from "../../docs/LLM";
 import { MCQResponse, MCQSchema } from "../../lib/schema";
 
+type Difficulty = "Easy" | "Medium" | "Hard";
+
 export type ChunkData = {
   chunkIndex: number;
   content: string;
@@ -86,13 +88,32 @@ export function createContext(chunks: ChunkData[]): string {
 /**
  * Create the MCQ prompt.
  */
-export function createMCQPrompt(context: string, questionCount: number): string {
+export function createMCQPrompt(
+  context: string,
+  questionCount: number,
+  difficulty: Difficulty,
+  variationKey: string,
+): string {
   return `
 You are an educational MCQ generator.
 
 Generate exactly ${questionCount} high-quality
 multiple-choice questions from ONLY the provided
 document content.
+
+Difficulty level: ${difficulty}
+
+Generation variation key: ${variationKey}
+
+This is a fresh generation request. Create a meaningfully different set
+of questions from previous requests by selecting different concepts,
+facts, relationships, and wording where the document allows it. Do not
+repeat the most obvious questions from a previous generation.
+
+Difficulty guidance:
+- Easy: test basic recall, definitions, and directly stated facts.
+- Medium: test understanding, comparisons, relationships, and simple application.
+- Hard: test deeper reasoning, multi-step application, and subtle distinctions.
 
 Rules:
 
@@ -121,7 +142,9 @@ ${context}
  */
 function getStructuredLLM() {
   const llm = getChatModel({
-    temperature: 0.3,
+    // Higher temperature helps repeated generations explore different valid
+    // questions while the prompt still constrains them to the source content.
+    temperature: 0.8,
   });
 
   return llm.withStructuredOutput<MCQResponse>(MCQSchema);
@@ -130,12 +153,17 @@ function getStructuredLLM() {
 /**
  * Generate MCQs using ONE LLM call.
  */
-export async function generateSingleCall(chunks: ChunkData[], requestedCount: number): Promise<MCQResponse> {
+export async function generateSingleCall(
+  chunks: ChunkData[],
+  requestedCount: number,
+  difficulty: Difficulty,
+  variationKey: string,
+): Promise<MCQResponse> {
   const context = createContext(chunks);
 
   const structuredLLM = getStructuredLLM();
 
-  const prompt = createMCQPrompt(context, requestedCount);
+  const prompt = createMCQPrompt(context, requestedCount, difficulty, variationKey);
 
   console.log(`Generating ${requestedCount} MCQs using ONE LLM call`);
 
@@ -145,7 +173,12 @@ export async function generateSingleCall(chunks: ChunkData[], requestedCount: nu
 /**
  * Generate MCQs batch-wise.
  */
-export async function generateBatchMCQs(batches: ChunkData[][], requestedCount: number): Promise<MCQResponse> {
+export async function generateBatchMCQs(
+  batches: ChunkData[][],
+  requestedCount: number,
+  difficulty: Difficulty,
+  variationKey: string,
+): Promise<MCQResponse> {
   const targetCandidates = Math.ceil(requestedCount * EXTRA_QUESTION_RATIO);
 
   /*
@@ -172,7 +205,7 @@ export async function generateBatchMCQs(batches: ChunkData[][], requestedCount: 
 
     const context = createContext(batches[i]);
 
-    const prompt = createMCQPrompt(context, questionCount);
+    const prompt = createMCQPrompt(context, questionCount, difficulty, `${variationKey}-batch-${i + 1}`);
 
     console.log(`Batch ${i + 1}/${batches.length} → ${questionCount} MCQs`);
 

@@ -1,10 +1,10 @@
 import { Document } from "@langchain/core/documents";
 import { scrape } from "../../docs/scrapeURL";
-import { HashService } from "../repo/hash.service";
-import { DocumentService } from "../repo/document.Service";
+import { HashService } from "../docs/hash.service";
+import { DocumentService } from "../docs/document.Service";
 import { DocumentType } from "../../generated/prisma";
 import { chunkText } from "../../docs/textToChunks";
-import { ChunkService } from "../repo/chunks.service";
+import { ChunkService } from "../docs/chunks.service";
 import { addChunks } from "../vectorStore.service";
 
 export async function ingestUrl(url: string, userId: string) {
